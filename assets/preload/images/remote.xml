@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="Remote Hand New.png">
+	<!-- Created using the Spritesheet and XML generator -->
+	<!-- https://uncertainprod.github.io/FNF-Spritesheet-XML-generator-Web -->
+	<SubTexture name="Remote Hand 10000" x="0" y="0" width="426" height="386" frameX="-57" frameY="-27" frameWidth="481" frameHeight="416"/>
+	<SubTexture name="Remote Hand 20000" x="426" y="0" width="426" height="386" frameX="-57" frameY="-27" frameWidth="481" frameHeight="416"/>
+</TextureAtlas>

@@ -25,7 +25,7 @@ using StringTools;
 
 class MainMenuState extends MusicBeatState
 {
-	public static var psychEngineVersion:String = '0.6.3'; //This is also used for Discord RPC
+	public static var psychEngineVersion:String = 'Legacy Expanded alpha'; //This is also used for Discord RPC
 	public static var curSelected:Int = 0;
 
 	var menuItems:FlxTypedGroup<FlxSprite>;
@@ -35,10 +35,7 @@ class MainMenuState extends MusicBeatState
 	var optionShit:Array<String> = [
 		'story_mode',
 		'freeplay',
-		#if MODS_ALLOWED 'mods', #end
-		#if ACHIEVEMENTS_ALLOWED 'awards', #end
 		'credits',
-		#if !switch 'donate', #end
 		'options'
 	];
 
@@ -46,7 +43,9 @@ class MainMenuState extends MusicBeatState
 	var camFollow:FlxObject;
 	var camFollowPos:FlxObject;
 	var debugKeys:Array<FlxKey>;
-
+	public var coolhand:FlxSprite;
+	var loadedWeeks:Array<WeekData> = [];
+	
 	override function create()
 	{
 		#if MODS_ALLOWED
@@ -70,17 +69,40 @@ class MainMenuState extends MusicBeatState
 
 		transIn = FlxTransitionableState.defaultTransIn;
 		transOut = FlxTransitionableState.defaultTransOut;
+		
 
+		var weekFile:WeekData = WeekData.weeksLoaded.get(WeekData.weeksList[1]);
+
+		trace(weekFile);
 		persistentUpdate = persistentDraw = true;
+		loadedWeeks.push(weekFile);
+		WeekData.setDirectoryFromWeek(weekFile);
 
 		var yScroll:Float = Math.max(0.25 - (0.05 * (optionShit.length - 4)), 0.1);
-		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menuBG'));
-		bg.scrollFactor.set(0, yScroll);
+		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('mainmenu/bg_base'));
+		bg.scrollFactor.set(0, 0);
 		bg.setGraphicSize(Std.int(bg.width * 1.175));
 		bg.updateHitbox();
 		bg.screenCenter();
 		bg.antialiasing = ClientPrefs.globalAntialiasing;
-		add(bg);
+	
+		var bg2:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('mainmenu/tvbgs/' + FlxG.random.int(1, 6)));
+		bg2.scrollFactor.set(0, 0);
+		bg2.setGraphicSize(Std.int(bg2.width * 1.175));
+		bg2.updateHitbox();
+		bg2.screenCenter();
+		bg2.antialiasing = ClientPrefs.globalAntialiasing;
+		trace(bg2.graphic);
+		add(bg2);
+		var tv:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('mainmenu/tv'));
+		tv.scrollFactor.set(0, 0);
+		tv.x = bg2.x;
+		tv.y = bg2.y;
+		tv.setGraphicSize(Std.int(tv.width * 1.175));
+		tv.updateHitbox();
+		tv.screenCenter();
+		tv.antialiasing = ClientPrefs.globalAntialiasing;
+		
 
 		camFollow = new FlxObject(0, 0, 1, 1);
 		camFollowPos = new FlxObject(0, 0, 1, 1);
@@ -102,17 +124,28 @@ class MainMenuState extends MusicBeatState
 		menuItems = new FlxTypedGroup<FlxSprite>();
 		add(menuItems);
 
-		var scale:Float = 1;
+		var scale:Float = 0.5;
 		/*if(optionShit.length > 6) {
 			scale = 6 / optionShit.length;
 		}*/
 
+		coolhand = new FlxSprite(-80).loadGraphic(Paths.image('remote'));
+		coolhand.scrollFactor.set(0, 0);
+		coolhand.frames =Paths.getSparrowAtlas('remote');
+		coolhand.animation.addByPrefix('press', 'Remote Hand 2', 24, false);
+		coolhand.animation.addByPrefix('sad', 'Remote Hand 1', 24, false);
+		coolhand.animation.play('sad');
+		coolhand.x = 850;
+		coolhand.y = 400;
+		
 		for (i in 0...optionShit.length)
 		{
-			var offset:Float = 108 - (Math.max(optionShit.length, 4) - 4) * 80;
-			var menuItem:FlxSprite = new FlxSprite(0, (i * 140)  + offset);
+			var offset:Float = 108 - (Math.max(optionShit.length, 4) - 4) * 100;
+			
+			var menuItem:FlxSprite = new FlxSprite(0, (i * 80)  + offset +100);
 			menuItem.scale.x = scale;
 			menuItem.scale.y = scale;
+			
 			menuItem.frames = Paths.getSparrowAtlas('mainmenu/menu_' + optionShit[i]);
 			menuItem.animation.addByPrefix('idle', optionShit[i] + " basic", 24);
 			menuItem.animation.addByPrefix('selected', optionShit[i] + " white", 24);
@@ -121,16 +154,20 @@ class MainMenuState extends MusicBeatState
 			menuItem.screenCenter(X);
 			menuItems.add(menuItem);
 			var scr:Float = (optionShit.length - 4) * 0.135;
-			if(optionShit.length < 6) scr = 0;
+			
 			menuItem.scrollFactor.set(0, scr);
 			menuItem.antialiasing = ClientPrefs.globalAntialiasing;
 			//menuItem.setGraphicSize(Std.int(menuItem.width * 0.58));
 			menuItem.updateHitbox();
 		}
+		add(bg);
+		add(tv);
+		add(coolhand);
+
 
 		FlxG.camera.follow(camFollowPos, null, 1);
 
-		var versionShit:FlxText = new FlxText(12, FlxG.height - 44, 0, "Psych Engine v" + psychEngineVersion, 12);
+		var versionShit:FlxText = new FlxText(12, FlxG.height - 44, 0, "Psych Engine:" + psychEngineVersion, 12);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);
@@ -186,12 +223,30 @@ class MainMenuState extends MusicBeatState
 			if (controls.UI_UP_P)
 			{
 				FlxG.sound.play(Paths.sound('scrollMenu'));
+				coolhand.animation.play('press');
+				FlxTween.tween(coolhand, {y: 350}, 0.075,{ease: FlxEase.bounceInOut,
+					onComplete: function(twn:FlxTween)
+						{
+							FlxTween.tween(coolhand, {y: 400}, 0.075,{ease: FlxEase.bounceInOut});
+							coolhand.animation.play('sad');
+									
+						}
+					});
 				changeItem(-1);
 			}
 
 			if (controls.UI_DOWN_P)
 			{
 				FlxG.sound.play(Paths.sound('scrollMenu'));
+				coolhand.animation.play('press');
+				FlxTween.tween(coolhand, {y: 450}, 0.075,{ease: FlxEase.bounceInOut,
+					onComplete: function(twn:FlxTween)
+						{
+							FlxTween.tween(coolhand, {y: 400}, 0.075,{ease: FlxEase.bounceInOut});
+							coolhand.animation.play('sad');
+									
+						}
+					});
 				changeItem(1);
 			}
 
@@ -213,7 +268,7 @@ class MainMenuState extends MusicBeatState
 					selectedSomethin = true;
 					FlxG.sound.play(Paths.sound('confirmMenu'));
 
-					if(ClientPrefs.flashing) FlxFlicker.flicker(magenta, 1.1, 0.15, false);
+					
 
 					menuItems.forEach(function(spr:FlxSprite)
 					{
@@ -236,7 +291,13 @@ class MainMenuState extends MusicBeatState
 								switch (daChoice)
 								{
 									case 'story_mode':
-										MusicBeatState.switchState(new StoryMenuState());
+										PlayState.isStoryMode = true;
+										PlayState.storyPlaylist = ["ugh", "milf"];
+
+										PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase(), PlayState.storyPlaylist[0].toLowerCase());
+										LoadingState.loadAndSwitchState(new PlayState());
+									
+					
 									case 'freeplay':
 										MusicBeatState.switchState(new FreeplayState());
 									#if MODS_ALLOWED
@@ -255,22 +316,14 @@ class MainMenuState extends MusicBeatState
 					});
 				}
 			}
-			#if desktop
-			else if (FlxG.keys.anyJustPressed(debugKeys))
-			{
-				selectedSomethin = true;
-				MusicBeatState.switchState(new MasterEditorMenu());
-			}
-			#end
-		}
-
 		super.update(elapsed);
-
 		menuItems.forEach(function(spr:FlxSprite)
-		{
-			spr.screenCenter(X);
-		});
+			{
+				spr.screenCenter(X);
+				
+			});
 	}
+}
 
 	function changeItem(huh:Int = 0)
 	{
@@ -293,7 +346,7 @@ class MainMenuState extends MusicBeatState
 				if(menuItems.length > 4) {
 					add = menuItems.length * 8;
 				}
-				camFollow.setPosition(spr.getGraphicMidpoint().x, spr.getGraphicMidpoint().y - add);
+				//camFollow.setPosition(spr.getGraphicMidpoint().x, spr.getGraphicMidpoint().y - add);
 				spr.centerOffsets();
 			}
 		});

@@ -20,6 +20,11 @@ class HealthIcon extends FlxSprite
 	var animatedIconStage = "normal";
 	public var oldx:Float = 0;
 	public var oldy:Float = 0;
+	public var scalevar:Float = 1.2;
+	/// Icon Bops
+	var iconBopTween:FlxTween;
+	public var characters:String;
+
 	
 
 	public function new(char:String = 'bf', isPlayer:Bool = false)
@@ -46,12 +51,16 @@ class HealthIcon extends FlxSprite
 
 	private var iconOffsets:Array<Float> = [0, 0];
 	public function changeIcon(char:String) {
+		 characters = char;
+		 trace(characters);
 		if(this.char != char) {
 			var name:String = 'icons/' + char;
+			
 			
 			if(!Paths.fileExists('images/' + name + '.png', IMAGE)) name = 'icons/icon-' + char; //Older versions of psych engine's support
 			if(!Paths.fileExists('images/' + name + '.png', IMAGE)) name = 'icons/icon-face'; //Prevents crash from missing icon
 			var file:Dynamic = Paths.image(name);
+			
 
 			loadGraphic(file); //Load stupidly first for getting the file size
 
@@ -127,6 +136,7 @@ class HealthIcon extends FlxSprite
 	}
 
 	public dynamic function updateAnim(health:Float){
+		
 
 		var num:Int = Math.floor(Math.max(Math.min(Math.floor(health / 20), 4), 0));
 		switch (icontype){
@@ -158,9 +168,53 @@ class HealthIcon extends FlxSprite
 	}
 	
 
+	public dynamic function updateIconsScale(elapsed:Float,play:Float)
+		{
+			var mult:Float = FlxMath.lerp(1, this.scale.x, FlxMath.bound(1 - (elapsed * 9 * play), 0, 1));
+			scale.set(mult, mult);
+			updateHitbox();
+	
+			
+		}
+
 	public dynamic function iconbop(health:Float){
 		
-		scale.set(1.2, 1.2);
+		scale.set(scalevar, scalevar);
+		
+
+		switch(characters){
+			default:
+				if (isPlayer == true){
+					if (health <20){
+						angle = 20;
+						scalevar = 0.8;
+					}
+					else{
+						angle = -20;
+						scalevar = 1.2;
+					}
+				}
+				else{
+					if (health <20){
+						angle = -20;
+						scalevar = 0.8;
+					}
+					else{
+						angle = 20;
+						scalevar = 1.2;
+					}
+				}
+				scale.set(scalevar, scalevar);
+				iconBopTween = FlxTween.tween(this, {angle: 0}, 0.2, {
+					onComplete: function(twn:FlxTween) {
+						iconBopTween = null;
+					}
+				});
+				
+
+				
+		}
+			
 		updateHitbox();
 
 	}

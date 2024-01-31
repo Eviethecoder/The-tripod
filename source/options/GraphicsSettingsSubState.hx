@@ -44,6 +44,14 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			false); //Default value
 		addOption(option);
 
+
+		var option:Option = new Option('Lane Underlay', //Name
+			'How transparent your lane underlay is,\nHigher = more visable', //Description
+			'underlay', //Save data variable name
+			'float', //Variable type
+			0); //Default value
+		addOption(option);
+
 		var option:Option = new Option('Anti-Aliasing',
 			'If unchecked, disables anti-aliasing, increases performance\nat the cost of sharper visuals.',
 			'globalAntialiasing',
@@ -68,7 +76,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			60);
 		addOption(option);
 
-		option.minValue = 60;
+		option.minValue = 0;
 		option.maxValue = 240;
 		option.displayFormat = '%v FPS';
 		option.onChange = onChangeFramerate;

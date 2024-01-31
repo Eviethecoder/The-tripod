@@ -39,6 +39,7 @@ import flixel.ui.FlxSpriteButton;
 import flixel.util.FlxColor;
 import flixel.util.FlxSort;
 import lime.media.AudioBuffer;
+import flixel.graphics.FlxGraphic;
 import lime.utils.Assets;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
@@ -46,6 +47,7 @@ import openfl.media.Sound;
 import openfl.net.FileReference;
 import openfl.utils.Assets as OpenFlAssets;
 import openfl.utils.ByteArray;
+
 
 using StringTools;
 #if sys
@@ -74,6 +76,7 @@ class ChartingState extends MusicBeatState
 	public var ignoreWarnings = false;
 	var undos = [];
 	var redos = [];
+	var lilBuddiesBox:FlxUICheckBox;
 	var eventStuff:Array<Dynamic> =
 	[
 		['', "Nothing. Yep, that's right."],
@@ -90,6 +93,8 @@ class ChartingState extends MusicBeatState
 		['Alt Idle Animation', "Sets a specified suffix after the idle animation name.\nYou can use this to trigger 'idle-alt' if you set\nValue 2 to -alt\n\nValue 1: Character to set (Dad, BF or GF)\nValue 2: New suffix (Leave it blank to disable)"],
 		['Screen Shake', "Value 1: Camera shake\nValue 2: HUD shake\n\nEvery value works as the following example: \"1, 0.05\".\nThe first number (1) is the duration.\nThe second number (0.05) is the intensity."],
 		['Change Character', "Value 1: Character to change (Dad, BF, GF)\nValue 2: New character's name"],
+		['coolcolormodeon', "Value 1: Character to change (Dad, BF, GF)\nValue 2: New character's name"],
+		
 		['Change Scroll Speed', "Value 1: Scroll Speed Multiplier (1 is default)\nValue 2: Time it takes to change fully in seconds."],
 		['Set Property', "Value 1: Variable name\nValue 2: New value"]
 	];
@@ -106,6 +111,10 @@ class ChartingState extends MusicBeatState
 	public static var curSec:Int = 0;
 	public static var lastSection:Int = 0;
 	private static var lastSong:String = '';
+	
+	var lilStage:FlxSprite;
+	var lilBf:FlxSprite;
+	var lilOpp:FlxSprite;
 
 	var bpmTxt:FlxText;
 
@@ -180,9 +189,6 @@ class ChartingState extends MusicBeatState
 	var waveformSprite:FlxSprite;
 	var gridLayer:FlxTypedGroup<FlxSprite>;
 
-	var lilStage:FlxSprite;
-	var lilBf:FlxSprite;
-	var lilOpp:FlxSprite;
 
 	public static var quantization:Int = 16;
 	public static var curQuant = 3;
@@ -233,6 +239,8 @@ class ChartingState extends MusicBeatState
 			PlayState.SONG = _song;
 		}
 
+		
+
 		// Paths.clearMemory();
 
 		#if desktop
@@ -268,11 +276,13 @@ class ChartingState extends MusicBeatState
 		add(leftIcon);
 		add(rightIcon);
 
-		lilStage = new FlxSprite(32, 432).loadGraphic(Paths.image("chartEditor/lilStage"));
+		lilStage = new FlxSprite(32, 432).loadGraphic(Paths.image("lilStage"), true, 256, 256);
+		lilStage.animation.add('idle', [0, 1], 0);
+		lilStage.animation.play('idle');
 		lilStage.scrollFactor.set();
 		add(lilStage);
 
-		lilBf = new FlxSprite(32, 432).loadGraphic(Paths.image("chartEditor/lilBf"), true, 300, 256);
+		lilBf = new FlxSprite(32, 432).loadGraphic(Paths.image("lilBf"), true, 300, 256);
 		lilBf.animation.add("idle", [0, 1], 12, true);
 		lilBf.animation.add("0", [3, 4, 5], 12, false);
 		lilBf.animation.add("1", [6, 7, 8], 12, false);
@@ -286,7 +296,7 @@ class ChartingState extends MusicBeatState
 		lilBf.scrollFactor.set();
 		add(lilBf);
 
-		lilOpp = new FlxSprite(32, 432).loadGraphic(Paths.image("chartEditor/lilOpp"), true, 300, 256);
+		lilOpp = new FlxSprite(32, 432).loadGraphic(Paths.image("lilOpp"), true, 300, 256);
 		lilOpp.animation.add("idle", [0, 1], 12, true);
 		lilOpp.animation.add("0", [3, 4, 5], 12, false);
 		lilOpp.animation.add("1", [6, 7, 8], 12, false);
@@ -298,6 +308,8 @@ class ChartingState extends MusicBeatState
 		}
 		lilOpp.scrollFactor.set();
 		add(lilOpp);
+	
+		
 
 		leftIcon.setPosition(GRID_SIZE + 10, -100);
 		rightIcon.setPosition(GRID_SIZE * 5.2, -100);
@@ -332,6 +344,18 @@ class ChartingState extends MusicBeatState
 
 		strumLine = new FlxSprite(0, 50).makeGraphic(Std.int(GRID_SIZE * 9), 4);
 		add(strumLine);
+
+		var brosTimer = new FlxTimer();
+		lilBuddiesBox = new FlxUICheckBox(130, 200, null, null, "Lil' Buddies", 100);
+		lilBuddiesBox.checked = (FlxG.save.data.lilBuddiesBox == null ? true : FlxG.save.data.lilBuddiesBox);
+
+		lilBuddiesBox.callback = () -> {
+			FlxG.save.data.lilBuddiesBox = lilBuddiesBox.checked;
+
+			lilBf.visible = lilBuddiesBox.checked;
+			lilOpp.visible = lilBuddiesBox.checked;
+			lilStage.visible = lilBuddiesBox.checked;
+		};
 
 		quant = new AttachedSprite('chart_quant','chart_quant');
 		quant.animation.addByPrefix('q','chart_quant',0,false);
@@ -1770,9 +1794,12 @@ class ChartingState extends MusicBeatState
 
 			if (FlxG.keys.justPressed.SPACE)
 			{
+				
 				if (FlxG.sound.music.playing)
 				{
 					FlxG.sound.music.pause();
+					lilBf.animation.play("idle");
+					lilOpp.animation.play("idle");
 					if(vocals != null) vocals.pause();
 				}
 				else
@@ -1780,6 +1807,8 @@ class ChartingState extends MusicBeatState
 					if(vocals != null) {
 						vocals.play();
 						vocals.pause();
+						lilBf.animation.play("idle");
+						lilOpp.animation.play("idle");
 						vocals.time = FlxG.sound.music.time;
 						vocals.play();
 					}
@@ -1797,6 +1826,8 @@ class ChartingState extends MusicBeatState
 
 			if (FlxG.mouse.wheel != 0)
 			{
+				lilBf.animation.play("idle");
+				lilOpp.animation.play("idle");
 				FlxG.sound.music.pause();
 				if (!mouseQuant)
 					FlxG.sound.music.time -= (FlxG.mouse.wheel * Conductor.stepCrochet*0.8);
@@ -2056,9 +2087,18 @@ class ChartingState extends MusicBeatState
 				if(note.strumTime > lastConductorPos && FlxG.sound.music.playing && note.noteData > -1) {
 					var data:Int = note.noteData % 4;
 					var noteDataToCheck:Int = note.noteData;
+					var resetAnimLength:Float = (note.sustainLength / 1000) + 0.15;
 					if(noteDataToCheck > -1 && note.mustPress != _song.notes[curSec].mustHitSection) noteDataToCheck += 4;
 						strumLineNotes.members[noteDataToCheck].playAnim('confirm', true);
 						strumLineNotes.members[noteDataToCheck].resetAnim = (note.sustainLength / 1000) + 0.15;
+
+					if (lilBuddiesBox.checked)
+						if(note.mustPress && !note.noAnimation)
+							lilBf.animation.play("" + (note.noteData % 4), true);
+							
+						else if (!note.mustPress&& !note.noAnimation)
+                        	lilOpp.animation.play("" + (note.noteData % 4), true);
+						//trace('beep bop boob im playin ${note.noteData} note of ${note.mustPress ? 'player' : 'opponent'} strum with ${note.sustainLength} sustain length');
 					if(!playedSound[data]) {
 						if((playSoundBf.checked && note.mustPress) || (playSoundDad.checked && !note.mustPress)){
 							var soundToPlay = 'hitsound';
@@ -2477,6 +2517,8 @@ class ChartingState extends MusicBeatState
 			if (updateMusic)
 			{
 				FlxG.sound.music.pause();
+				lilBf.animation.play("idle");
+				lilOpp.animation.play("idle");
 
 				FlxG.sound.music.time = sectionStartTime();
 				if(vocals != null) {
@@ -2506,6 +2548,8 @@ class ChartingState extends MusicBeatState
 		}
 		Conductor.songPosition = FlxG.sound.music.time;
 		updateWaveform();
+		lilBf.animation.play("idle");
+		lilOpp.animation.play("idle");
 	}
 
 	function updateSectionUI():Void

@@ -125,6 +125,7 @@ class StoryMenuState extends MusicBeatState
 				num++;
 			}
 		}
+		trace(loadedWeeks);
 
 		WeekData.setDirectoryFromWeek(loadedWeeks[0]);
 		var charArray:Array<String> = loadedWeeks[0].weekCharacters;

@@ -35,7 +35,7 @@ import flixel.addons.transition.FlxTransitionableState;
 import flixel.system.FlxAssets.FlxShader;
 
 #if (!flash && sys)
-import flixel.addons.display.FlxRuntimeShader;
+import Fnfshaders;
 #end
 
 #if sys
@@ -281,7 +281,7 @@ class FunkinLua {
 
 			if(leObj != null) {
 				var arr:Array<String> = PlayState.instance.runtimeShaders.get(shader);
-				leObj.shader = new FlxRuntimeShader(arr[0], arr[1]);
+				leObj.shader = new Fnfshaders(arr[0], arr[1]);
 				return true;
 			}
 			#else
@@ -306,7 +306,7 @@ class FunkinLua {
 
 		Lua_helper.add_callback(lua, "getShaderBool", function(obj:String, prop:String) {
 			#if (!flash && MODS_ALLOWED && sys)
-			var shader:FlxRuntimeShader = getShader(obj);
+			var shader:Fnfshaders = getShader(obj);
 			if (shader == null)
 			{
 				return null;
@@ -319,7 +319,7 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "getShaderBoolArray", function(obj:String, prop:String) {
 			#if (!flash && MODS_ALLOWED && sys)
-			var shader:FlxRuntimeShader = getShader(obj);
+			var shader:Fnfshaders = getShader(obj);
 			if (shader == null)
 			{
 				return null;
@@ -332,7 +332,7 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "getShaderInt", function(obj:String, prop:String) {
 			#if (!flash && MODS_ALLOWED && sys)
-			var shader:FlxRuntimeShader = getShader(obj);
+			var shader:Fnfshaders = getShader(obj);
 			if (shader == null)
 			{
 				return null;
@@ -345,7 +345,7 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "getShaderIntArray", function(obj:String, prop:String) {
 			#if (!flash && MODS_ALLOWED && sys)
-			var shader:FlxRuntimeShader = getShader(obj);
+			var shader:Fnfshaders = getShader(obj);
 			if (shader == null)
 			{
 				return null;
@@ -358,7 +358,7 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "getShaderFloat", function(obj:String, prop:String) {
 			#if (!flash && MODS_ALLOWED && sys)
-			var shader:FlxRuntimeShader = getShader(obj);
+			var shader:Fnfshaders = getShader(obj);
 			if (shader == null)
 			{
 				return null;
@@ -371,7 +371,7 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "getShaderFloatArray", function(obj:String, prop:String) {
 			#if (!flash && MODS_ALLOWED && sys)
-			var shader:FlxRuntimeShader = getShader(obj);
+			var shader:Fnfshaders = getShader(obj);
 			if (shader == null)
 			{
 				return null;
@@ -386,7 +386,7 @@ class FunkinLua {
 
 		Lua_helper.add_callback(lua, "setShaderBool", function(obj:String, prop:String, value:Bool) {
 			#if (!flash && MODS_ALLOWED && sys)
-			var shader:FlxRuntimeShader = getShader(obj);
+			var shader:Fnfshaders = getShader(obj);
 			if(shader == null) return;
 
 			shader.setBool(prop, value);
@@ -396,7 +396,7 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "setShaderBoolArray", function(obj:String, prop:String, values:Dynamic) {
 			#if (!flash && MODS_ALLOWED && sys)
-			var shader:FlxRuntimeShader = getShader(obj);
+			var shader:Fnfshaders = getShader(obj);
 			if(shader == null) return;
 
 			shader.setBoolArray(prop, values);
@@ -406,7 +406,7 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "setShaderInt", function(obj:String, prop:String, value:Int) {
 			#if (!flash && MODS_ALLOWED && sys)
-			var shader:FlxRuntimeShader = getShader(obj);
+			var shader:Fnfshaders = getShader(obj);
 			if(shader == null) return;
 
 			shader.setInt(prop, value);
@@ -416,7 +416,7 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "setShaderIntArray", function(obj:String, prop:String, values:Dynamic) {
 			#if (!flash && MODS_ALLOWED && sys)
-			var shader:FlxRuntimeShader = getShader(obj);
+			var shader:Fnfshaders = getShader(obj);
 			if(shader == null) return;
 
 			shader.setIntArray(prop, values);
@@ -426,7 +426,7 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "setShaderFloat", function(obj:String, prop:String, value:Float) {
 			#if (!flash && MODS_ALLOWED && sys)
-			var shader:FlxRuntimeShader = getShader(obj);
+			var shader:Fnfshaders = getShader(obj);
 			if(shader == null) return;
 
 			shader.setFloat(prop, value);
@@ -436,7 +436,7 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "setShaderFloatArray", function(obj:String, prop:String, values:Dynamic) {
 			#if (!flash && MODS_ALLOWED && sys)
-			var shader:FlxRuntimeShader = getShader(obj);
+			var shader:Fnfshaders = getShader(obj);
 			if(shader == null) return;
 
 			shader.setFloatArray(prop, values);
@@ -447,7 +447,7 @@ class FunkinLua {
 
 		Lua_helper.add_callback(lua, "setShaderSampler2D", function(obj:String, prop:String, bitmapdataPath:String) {
 			#if (!flash && MODS_ALLOWED && sys)
-			var shader:FlxRuntimeShader = getShader(obj);
+			var shader:Fnfshaders = getShader(obj);
 			if(shader == null) return;
 
 			// trace('bitmapdatapath: $bitmapdataPath');
@@ -2844,7 +2844,7 @@ class FunkinLua {
 	}
 
 	#if (!flash && sys)
-	public function getShader(obj:String):FlxRuntimeShader
+	public function getShader(obj:String):Fnfshaders
 	{
 		var killMe:Array<String> = obj.split('.');
 		var leObj:FlxSprite = getObjectDirectly(killMe[0]);
@@ -2854,7 +2854,7 @@ class FunkinLua {
 
 		if(leObj != null) {
 			var shader:Dynamic = leObj.shader;
-			var shader:FlxRuntimeShader = shader;
+			var shader:Fnfshaders = shader;
 			return shader;
 		}
 		return null;
@@ -3387,7 +3387,7 @@ class HScript
 		interp.variables.set('Alphabet', Alphabet);
 		interp.variables.set('CustomSubstate', CustomSubstate);
 		#if (!flash && sys)
-		interp.variables.set('FlxRuntimeShader', FlxRuntimeShader);
+		interp.variables.set('Fnfshaders', Fnfshaders);
 		#end
 		interp.variables.set('ShaderFilter', openfl.filters.ShaderFilter);
 		interp.variables.set('StringTools', StringTools);

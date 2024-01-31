@@ -27,6 +27,8 @@ typedef CharacterFile = {
 	var sing_duration:Float;
 	var healthicon:String;
 
+	var noteskin:String;
+
 	var position:Array<Float>;
 	var camera_position:Array<Float>;
 
@@ -64,6 +66,7 @@ class Character extends FlxSprite
 	public var skipDance:Bool = false;
 
 	public var healthIcon:String = 'face';
+	public var noteskin:String = 'notes';
 	public var animationsArray:Array<AnimArray> = [];
 
 	public var positionArray:Array<Float> = [0, 0];
@@ -73,6 +76,7 @@ class Character extends FlxSprite
 
 	//Used on Character Editor
 	public var imageFile:String = '';
+	public var noteskinFile:String = 'NOTE_assets';
 	public var jsonScale:Float = 1;
 	public var noAntialiasing:Bool = false;
 	public var originalFlipX:Bool = false;
@@ -167,6 +171,7 @@ class Character extends FlxSprite
 						frames = AtlasFrameMaker.construct(json.image);
 				}
 				imageFile = json.image;
+				noteskinFile = json.noteskin;
 
 				if(json.scale != 1) {
 					jsonScale = json.scale;
@@ -176,6 +181,8 @@ class Character extends FlxSprite
 
 				positionArray = json.position;
 				cameraPosition = json.camera_position;
+
+				
 
 				healthIcon = json.healthicon;
 				singDuration = json.sing_duration;

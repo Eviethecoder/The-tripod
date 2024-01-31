@@ -493,6 +493,8 @@ class CharacterEditorState extends MusicBeatState
 	}
 
 	var imageInputText:FlxUIInputText;
+	var noteskinInputText:FlxUIInputText;
+
 	var healthIconInputText:FlxUIInputText;
 
 	var singDurationStepper:FlxUINumericStepper;
@@ -521,6 +523,11 @@ class CharacterEditorState extends MusicBeatState
 			if(char.animation.curAnim != null) {
 				char.playAnim(char.animation.curAnim.name, true);
 			}
+		});
+		noteskinInputText = new FlxUIInputText(15, 280, 200, 'NOTE_assets', 8);
+		var loadnoteskin:FlxButton = new FlxButton(noteskinInputText.x + 210, noteskinInputText.y - 3, "set noteskin", function()
+		{
+			char.noteskinFile = noteskinInputText.text;
 		});
 
 		var decideIconColor:FlxButton = new FlxButton(reloadImage.x, reloadImage.y + 30, "Get Icon Color", function()
@@ -577,6 +584,7 @@ class CharacterEditorState extends MusicBeatState
 		healthColorStepperB = new FlxUINumericStepper(singDurationStepper.x + 130, saveCharacterButton.y, 20, char.healthColorArray[2], 0, 255, 0);
 
 		tab_group.add(new FlxText(15, imageInputText.y - 18, 0, 'Image file name:'));
+		tab_group.add(new FlxText(15, noteskinInputText.y - 18, 0, 'Noteskin file name:'));
 		tab_group.add(new FlxText(15, healthIconInputText.y - 18, 0, 'Health icon name:'));
 		tab_group.add(new FlxText(15, singDurationStepper.y - 18, 0, 'Sing Animation length:'));
 		tab_group.add(new FlxText(15, scaleStepper.y - 18, 0, 'Scale:'));
@@ -585,6 +593,8 @@ class CharacterEditorState extends MusicBeatState
 		tab_group.add(new FlxText(healthColorStepperR.x, healthColorStepperR.y - 18, 0, 'Health bar R/G/B:'));
 		tab_group.add(imageInputText);
 		tab_group.add(reloadImage);
+		tab_group.add(noteskinInputText);
+		tab_group.add(loadnoteskin);
 		tab_group.add(decideIconColor);
 		tab_group.add(healthIconInputText);
 		tab_group.add(singDurationStepper);
@@ -980,7 +990,8 @@ class CharacterEditorState extends MusicBeatState
 
 	function reloadCharacterOptions() {
 		if(UI_characterbox != null) {
-			imageInputText.text = char.imageFile;
+			imageInputText.text = char.imageFile; 
+			noteskinInputText.text = char.noteskinFile;
 			healthIconInputText.text = char.healthIcon;
 			singDurationStepper.value = char.singDuration;
 			scaleStepper.value = char.jsonScale;
@@ -1099,7 +1110,7 @@ class CharacterEditorState extends MusicBeatState
 			textAnim.text = '';
 		}
 
-		var inputTexts:Array<FlxUIInputText> = [animationInputText, imageInputText, healthIconInputText, animationNameInputText, animationIndicesInputText];
+		var inputTexts:Array<FlxUIInputText> = [animationInputText, noteskinInputText, imageInputText, healthIconInputText, animationNameInputText, animationIndicesInputText];
 		for (i in 0...inputTexts.length) {
 			if(inputTexts[i].hasFocus) {
 				FlxG.sound.muteKeys = [];
@@ -1109,6 +1120,8 @@ class CharacterEditorState extends MusicBeatState
 				return;
 			}
 		}
+
+		
 		FlxG.sound.muteKeys = TitleState.muteKeys;
 		FlxG.sound.volumeDownKeys = TitleState.volumeDownKeys;
 		FlxG.sound.volumeUpKeys = TitleState.volumeUpKeys;
@@ -1278,6 +1291,7 @@ class CharacterEditorState extends MusicBeatState
 			"scale": char.jsonScale,
 			"sing_duration": char.singDuration,
 			"healthicon": char.healthIcon,
+			"noteskin":char.noteskinFile,
 
 			"position":	char.positionArray,
 			"camera_position": char.cameraPosition,
